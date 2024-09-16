@@ -1,35 +1,13 @@
-import mongoose from "mongoose";
-import { DB_NAME } from "./constants";
+// require("dotenv").config({ path: "./env" }); // can give path too
+// but it ruin the consistency of code, require......import......
 
-import express from "express";
-const app = express()(
-  /* 
-function connectDB() {   
-}
-connectDB()
- */
+// improved version
+import dotenv from "dotenv"; // but it will not work now, coz need it to config too
+import connectDB from "./db/index.js"; // sometimes extentions(.js) are also important
 
-  // to invoke it immediately use iffy (immediately execute the fn)
-  // (()=>) ()
-  // ;(()=>) ()  -> more professional common approach, it just to complete the previous stmt
-  async () => {
-    try {
-      await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`);
-      // listners after connection of DB, like
-      app.on("error", (error) => {
-        console.log("Error:", error);
-        throw error;
-      });
-
-      app.listen(process.env.PORT, () => {
-        console.log(`App is listening on port ${process.env.PORT}`);
-      });
-    } catch (error) {
-      console.error("ERROR:", error);
-      throw err;
-    }
-  }
-)();
-
-// process.env.MONGODB_URI -> for database connection
-// DB_NAME -> db name
+// dotenv config
+dotenv.config({
+  path: "./env",
+});
+// as this way is very freshly introduce, it is in experimental version so we need to specify that in in package.json
+connectDB();
