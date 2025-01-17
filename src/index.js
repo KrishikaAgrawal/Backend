@@ -10,4 +10,12 @@ import connectDB from "./db/index.js"; // sometimes extentions(.js) are also imp
 //   path: "./env",
 // });
 // as this way is very freshly introduce, it is in experimental version so we need to specify that in in package.json
-connectDB();
+connectDB() // we are using async, which returns promise, so we have then and catch
+  .then(() => {
+    app.listen(process.env.PORT || 8000, () => {
+      console.log();
+    });
+  })
+  .catch((err) => {
+    console.log("MONGODB connection failed!!", err);
+  });
