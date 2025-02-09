@@ -9,7 +9,7 @@ const connectDB = async () => {
     // mongoose gives a return object, connectionInstance -> have response that is returning after the connection, contains loads of information
 
     console.log(
-      `\n MongoDB connected!! DB HOST : ${connectionInstance.connection.host}`
+      `\n ${process.env.MONGODB_URI} \n MongoDB connected!! DB HOST : ${connectionInstance.connection.host}`
     ); // to know the host (mongodb url) we are getting connected
   } catch (error) {
     console.log("MONGODB connection error", error);
