@@ -45,8 +45,48 @@ const userSchema = new Schema({
         required:[true,'Password is required'], // custom error msg 
     },
     refreshToken: {
-        type:
+      type: String;
     }
 });
+
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next(); 
+  this.password = bcrypt.hash(this.password, 10)
+  next()
+})
+
+// custom method to check password
+userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password,this.password) 
+}  
+
+// custom method to generate refresh and access token
+userSchema.methods.generateAccessToken = function () {
+  // jwt.sign()  // method to generate token sign(payload:string|object,SecretOrPrivateKey,expiresIn)
+  return jwt.sign({  // passing as payload
+    _id: this._id,  // all other things can be accessed from db using id or we can pass it here directly
+    email: this.email,
+    username: this.username,
+    fullname: this.fullname,
+  },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn:process.env.ACCESS_TOKEN_EXPIRY 
+    }
+  )
+} // this process doesn't take much time, so no need to make it async function, but we can
+
+// same way to generate refresh token
+userSchema.methods.generateRefreshToken = function () {
+  return jwt.sign({  
+    _id: this._id,  // info is less in this, as it refresh more
+  },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn:process.env.REFRESH_TOKEN_EXPIRY 
+    }
+  )
+}
 
 export const User = mongoose.model("User", userSchema);
