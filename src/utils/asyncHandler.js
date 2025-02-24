@@ -14,7 +14,7 @@ const asyncHandler = (fn) => async (req, res, next) => {
       message: err.message,
       // if user is sending err code -> err.code, if not 500 or 400
     });
-  }
+  }catch(error){}
 };
 
 export { asyncHandler };

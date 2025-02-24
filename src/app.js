@@ -15,5 +15,5 @@ import userRouter from "./routes/user.routes.js";
 
 // routes declaration
 
-app.use("/users", userRouter); // passing name of route, and which router to activate on it
+app.use("/api/v1/users", userRouter); // passing name of route, and which router to activate on it
 export { app };
