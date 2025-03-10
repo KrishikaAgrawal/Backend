@@ -8,18 +8,18 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 const registerUser = asyncHandler(async (req, res) => {
   // TO GET USER DETAILS
-  const { fullName, email, username, password } = req.body;
+  const { fullname, email, username, password } = req.body;
   console.log("email:", email);
 
   // VALIDATION
   if (
-    [fullName, email, username, password].some((field) => field?.trim() === "")
+    [fullname, email, username, password].some((field) => field?.trim() === "")
   ) {
     throw new ApiError(400, "All fields are required");
   }
 
   // CHECK IF USER ALREADY EXISTS OR NOT
-  const existedUser = User.findOne({
+  const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
   if (existedUser) {
@@ -42,15 +42,15 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // CREATE ENTRY IN DATABASE
   // User is talking to DB
-  const user= async User.create({
+  
+  const user= await User.create({
     // whatever we want to enter in the db
     fullname,
-    avatar: avatar.url, // from cloudinary utility, are all getting whole avatar object, but we just want to pass url in db
-    // coverImage: coverImage.url, // problem is, as it was not compulsory field, we didn't check user has given it or not, so
+    avatar: avatar.url,
     coverImage: coverImage?.url || "",
     email,
     password,
-    username:username.toLowerCase(),  // we want to save it in lower case
+    username:username.toLowerCase(),  
   });
 
   // Check user is created in db or not and remove password and refresh token from response

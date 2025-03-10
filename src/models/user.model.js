@@ -45,7 +45,7 @@ const userSchema = new Schema({
         required:[true,'Password is required'], // custom error msg 
     },
     refreshToken: {
-      type: String;
+      type: String,
     }
 });
 

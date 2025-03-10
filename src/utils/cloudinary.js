@@ -1,5 +1,5 @@
-import { v2 as cloudinary } from "cloudinary"; // the method we need is inside v2
-import fs from "fs"; // already installed file with node for file handling
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 // CONFIGURE CLOUDINARY
 cloudinary.config({
@@ -9,22 +9,17 @@ cloudinary.config({
 });
 
 // UPLOAD FILES
-// localFilePath -> path of file
 const uploadOnCloudinary = async (localFilePath) => {
   try {
-    // if the local file path is not passed return null or can return error message
     if (!localFilePath) return null;
-    // upload the file on cloudinary
     const response = await cloudinary.uploader.upload(localFilePath, {
-      // pass options
-      resource_type: "auto", // which resource you are passing
-    }); // can pass other options, to get them, use " , space {}"
-
-    // file has been uploaded successfully
-    console.log("file is uploaded on cloudinary", response.url); // get the url after upload
-    return response; // or can pass response.url only
+      resource_type: "auto",
+    });
+    // console.log("file is uploaded on cloudinary", response.url); // url is coming we have checked
+    fs.unlinkSync(localFilePath);   // if file successfully uploaded, remove from local
+    return response;
   } catch (error) {
-    fs.unlinkSync(localFilePath); // remove the locally saved temporary file as the upload operation got failed
+    fs.unlinkSync(localFilePath); 
     return null;
   }
 };
