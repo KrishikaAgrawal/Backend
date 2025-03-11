@@ -27,7 +27,6 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // console.log(req.files);
-  
 
   // CHECK OF IMAGES AND AVATAR
   const avatarLocalPath = req.files?.avatar[0]?.path;
@@ -45,29 +44,55 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // CREATE ENTRY IN DATABASE
   // User is talking to DB
-  
-  const user= await User.create({
+
+  const user = await User.create({
     // whatever we want to enter in the db
     fullname,
     avatar: avatar.url,
     coverImage: coverImage?.url || "",
     email,
     password,
-    username:username.toLowerCase(),  
+    username: username.toLowerCase(),
   });
 
   // Check user is created in db or not and remove password and refresh token from response
-  const createdUser = await User.findById(user._id).select("-password -refreshToken")
-  
+  const createdUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
+
   if (!createdUser) {
-    throw new ApiError(500,"Something went wrong while registering the user")
+    throw new ApiError(500, "Something went wrong while registering the user");
   }
 
   // RETURN RESPONSE
   return res.status(201).json(
     // as we have created a class for that in ApiResponse, we are creating a new object for this
-    new ApiResponse(200,createdUser, "User Registered Successfully")
-  )
+    new ApiResponse(200, createdUser, "User Registered Successfully")
+  );
 });
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res) => {
+  // take data from req>body ( req body → data)
+  const { email, username, password } = req.body;
+
+  // username / email is passed or not
+  if (!username || !email) {
+    throw new ApiError(400, "username or password is required");
+  }
+
+  // find the user
+  const user = await User.findOne({ $or: [{ email }, { username }] });
+  // if user not found throw error
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  /* User -> mongoose obj, can access methods available through mongoose, like findOne, updateOne
+user -> instance of our current database user, can access our made method, like isPasswordCorrect
+ */
+
+  // user found -> then check password -> using bcrypt
+  const isPasswordValid = await user.isPasswordCorrect(password); // passing the password in the fn and return true or false
+});
+
+export { registerUser, loginUser };
