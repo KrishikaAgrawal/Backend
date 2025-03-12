@@ -7,12 +7,19 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 // to generate access and refresh token
-const generateAccessAndRefreshTokens = async (userId){
-  try { }
-  catch (error) {
-    throw new ApiError(500,"Something went wrong while generating access and refresh token")
+const generateAccessAndRefreshTokens = async (userId) => {
+  try {
+    const user = await User.findById(userId); // get the user using userId
+    // using methods we defined in user model for generating access token and refresh token
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Something went wrong while generating access and refresh token"
+    );
   }
-}
+};
 
 const registerUser = asyncHandler(async (req, res) => {
   // TO GET USER DETAILS
@@ -105,6 +112,6 @@ user -> instance of our current database user, can access our made method, like 
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid user credentials");
   }
- });
+});
 
 export { registerUser, loginUser };
