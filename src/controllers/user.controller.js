@@ -11,8 +11,8 @@ const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId); // get the user using userId
     // using methods we defined in user model for generating access token and refresh token
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
+    const accessToken = user.generateAccessToken(); // sends to user
+    const refreshToken = user.generateRefreshToken(); // save to db -> so no need to send to user
   } catch (error) {
     throw new ApiError(
       500,
