@@ -6,6 +6,14 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // using ApiResponse utility
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+// to generate access and refresh token
+const generateAccessAndRefreshTokens = async (userId){
+  try { }
+  catch (error) {
+    throw new ApiError(500,"Something went wrong")
+  }
+}
+
 const registerUser = asyncHandler(async (req, res) => {
   // TO GET USER DETAILS
   const { fullname, email, username, password } = req.body;
@@ -93,6 +101,10 @@ user -> instance of our current database user, can access our made method, like 
 
   // user found -> then check password -> using bcrypt
   const isPasswordValid = await user.isPasswordCorrect(password); // passing the password in the fn and return true or false
-});
+  // throw if false -> password didn't match
+  if (!isPasswordValid) {
+    throw new ApiError(401, "Invalid user credentials");
+  }
+ });
 
 export { registerUser, loginUser };
