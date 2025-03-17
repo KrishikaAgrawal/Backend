@@ -12,7 +12,11 @@ const generateAccessAndRefreshTokens = async (userId) => {
     const user = await User.findById(userId); // get the user using userId
     // using methods we defined in user model for generating access token and refresh token
     const accessToken = user.generateAccessToken(); // sends to user
-    const refreshToken = user.generateRefreshToken(); // save to db -> so no need to send to user
+    const refreshToken = user.generateRefreshToken(); // save to db -> so no need to ask password from user
+    user.refreshToken = refreshToken; // saving refresh token to the db
+    // saving the user
+    await user.save({ validateBeforeSave: false }); // save method also kickin all required fields validation (like password, but we are just passing refreshToken), so we are passing validateBeforeSave: false
+    return { accessToken, refreshToken };
   } catch (error) {
     throw new ApiError(
       500,
@@ -112,6 +116,36 @@ user -> instance of our current database user, can access our made method, like 
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid user credentials");
   }
+
+  // generate access and refresh token
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+    user._id
+  ); // await coz we are doing async operation for interacting with db
+
+  // send them in cookies
+  const loggedInUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
+
+  const options = {
+    // by default cookies can be accessed by js (frontend), so we are making it httpOnly (modifiable by server only)
+    httpOnly: true,
+    secure: true,
+  };
+
+  // return response
+  return (
+    res
+      .status(200)
+      // we injected cookie parser as middleware, so we can use res.cookie
+      .cookie("accessToken", accessToken, options) // setting access token
+      .cookie("refreshToken", refreshToken, options) // setting refresh token
+      .json(new ApiResponse(200,
+        {
+          user: loggedInUser,accessToken, refreshToken
+        } // to handle the case when user want to save the token in local storage
+        , "User logged in successfully"))
+  ); 
 });
 
 export { registerUser, loginUser };
