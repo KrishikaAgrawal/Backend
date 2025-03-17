@@ -25,6 +25,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
+// REGISTER USER
 const registerUser = asyncHandler(async (req, res) => {
   // TO GET USER DETAILS
   const { fullname, email, username, password } = req.body;
@@ -90,6 +91,7 @@ const registerUser = asyncHandler(async (req, res) => {
   );
 });
 
+// LOGIN USER
 const loginUser = asyncHandler(async (req, res) => {
   // take data from req>body ( req body → data)
   const { email, username, password } = req.body;
@@ -140,12 +142,21 @@ user -> instance of our current database user, can access our made method, like 
       // we injected cookie parser as middleware, so we can use res.cookie
       .cookie("accessToken", accessToken, options) // setting access token
       .cookie("refreshToken", refreshToken, options) // setting refresh token
-      .json(new ApiResponse(200,
-        {
-          user: loggedInUser,accessToken, refreshToken
-        } // to handle the case when user want to save the token in local storage
-        , "User logged in successfully"))
-  ); 
+      .json(
+        new ApiResponse(
+          200,
+          {
+            user: loggedInUser,
+            accessToken,
+            refreshToken,
+          }, // to handle the case when user want to save the token in local storage
+          "User logged in successfully"
+        )
+      )
+  );
 });
+
+// LOGOUT USER
+const logoutUser = asyncHandler(async (req, res) => {});
 
 export { registerUser, loginUser };
