@@ -157,6 +157,28 @@ user -> instance of our current database user, can access our made method, like 
 });
 
 // LOGOUT USER
-const logoutUser = asyncHandler(async (req, res) => {});
+const logoutUser = asyncHandler(async (req, res) => {
+  // remove refresh token from db
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: { refreshToken: undefined }, // setting refresh token to undefined
+    },
+    {
+      new: true, // return the updated user
+    }
+  );
+
+  // clear the cookies
+  const options = {
+    httpOnly: true,
+    secure: true,
+  }
+  return res
+  .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
+});
 
 export { registerUser, loginUser };
