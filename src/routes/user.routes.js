@@ -30,6 +30,6 @@ router.route("/login").post(loginUser);
 router.route("/logout").post(verifyJWT, logoutUser); // next in the middleware tells verifyJWT then next logoutUser
 
 // endpoint for refreshing the access token
-router.route("/refresh-token").post(refreshToken);
+router.route("/refresh-token").post(refreshAccessToken);
 
 export default router;
