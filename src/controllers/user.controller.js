@@ -231,4 +231,22 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
+// CHANGE CURRENT PASSWORD
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  // no need to check login, as we will apply middleware verifyJWT
+  // taking fields from req.body
+  const { oldPassword, newPassword } = req.body;
+  const user = await User.findById(req.user._id); // get the user from req.user._id
+  const isPasswordCorrect = user.isPasswordCorrect(oldPassword); // check if old password is correct or not
+  if (!isPasswordCorrect) {
+    throw new ApiError(400, "Invalid old password");
+  };
+  user.password = newPassword; // set new password
+  await user.save(validateBeforeSave: false); // save the user
+  
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password changed successfully"));
+});
+
 export { registerUser, loginUser, logoutUser, refreshAccessToken };
