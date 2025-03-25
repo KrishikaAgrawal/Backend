@@ -269,14 +269,14 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
   // find user and update
   const user = User.findByIdAndUpdate(
-    req.user._id, // get user from req.user._id
+    req.user?._id, // get user from req.user._id
     {   // using mongodb operator sets
       $set: {
         fullname,
         email:email,  // anyways can be written
     }
   }, {
-    new: true   // to get new updated user
+    new: true   // new returns the info of updated user
   }).select("-password"); // remove password from response
 
   return res
@@ -284,5 +284,35 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "User details updated successfully"));
 });
 
+// UPDATE USER AVATAR
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  // const avatarLocalPath = req.files?.avatar[0]?.path; // get the avatar path from req.files, as we are using multer middleware
+  const avatarLocalPath = req.file?.path;   // taking single file, avatar
+  if (!avatarLocalPath) {   // id not found
+    throw new ApiError(400, "Avatar file is required");
+  }
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails };
+  // upload the avatar on cloudinary
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  if (!avatar.url) {  // if url not found throw error
+    throw new ApiError(400, "Avatar file is required");
+  }
+  // updating user avatar
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {   // setting new avatar url
+        avatar: avatar.url,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "User avatar updated successfully"));
+});
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar };
